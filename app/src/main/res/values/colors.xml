@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Core Brand -->
+    <color name="accent_primary">#6C63FF</color>
+    <color name="accent_secondary">#00D4AA</color>
+    <color name="accent_tertiary">#FF6584</color>
+
+    <!-- Backgrounds -->
+    <color name="bg_primary">#0D0D1A</color>
+    <color name="bg_surface">#1A1A2E</color>
+    <color name="bg_surface_2">#16213E</color>
+    <color name="bg_card">#1E1E3A</color>
+    <color name="bg_terminal">#0A0A14</color>
+    <color name="bg_terminal_header">#12121F</color>
+
+    <!-- Text -->
+    <color name="text_primary">#E8E8F8</color>
+    <color name="text_secondary">#8888AA</color>
+    <color name="text_tertiary">#555577</color>
+    <color name="terminal_text">#C8F8C8</color>
+
+    <!-- Status -->
+    <color name="success_green">#00D4AA</color>
+    <color name="error_red">#FF4757</color>
+    <color name="warning_amber">#FFA726</color>
+    <color name="info_blue">#29B6F6</color>
+
+    <!-- Log Level Colors -->
+    <color name="log_debug">#555577</color>
+    <color name="log_info">#29B6F6</color>
+    <color name="log_warning">#FFA726</color>
+    <color name="log_error">#FF4757</color>
+    <color name="log_step">#6C63FF</color>
+    <color name="log_tool">#00D4AA</color>
+    <color name="log_result">#66BB6A</color>
+    <color name="log_thinking">#CE93D8</color>
+
+    <!-- Message Bubbles -->
+    <color name="bubble_user">#6C63FF</color>
+    <color name="bubble_assistant">#1E1E3A</color>
+    <color name="bubble_tool">#0D1F0D</color>
+    <color name="bubble_error">#2D0D0D</color>
+
+    <!-- Misc -->
+    <color name="divider">#2A2A4A</color>
+    <color name="ripple">#336C63FF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+</resources>

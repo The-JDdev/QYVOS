@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">QYVOS</string>
+    <string name="app_tagline">Powered by OpenManus AI Engine</string>
+    <string name="hint_input">Ask QYVOS anything…</string>
+    <string name="btn_send">Send</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_save">Save Settings</string>
+    <string name="btn_test">Test Connection</string>
+    <string name="btn_reset">Reset Defaults</string>
+    <string name="label_base_url">Base URL</string>
+    <string name="label_api_key">API Key</string>
+    <string name="label_model_name">Model Name</string>
+    <string name="label_max_tokens">Max Tokens</string>
+    <string name="label_temperature">Temperature</string>
+    <string name="label_max_steps">Max Steps</string>
+    <string name="dev_name">SHS Shobuj (JD Vijay)</string>
+    <string name="dev_tagline">Creator of QYVOS</string>
+    <string name="settings_title">Settings</string>
+    <string name="developer_title">Developer Hub</string>
+    <string name="execution_panel_title">⚡ God\'s Eye — Live Execution</string>
+    <string name="status_ready">Ready</string>
+    <string name="status_thinking">Agent is thinking…</string>
+    <string name="agent_mode_label">AGENT MODE — Read Only</string>
+</resources>

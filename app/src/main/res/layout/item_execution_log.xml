@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="2dp"
+    android:paddingHorizontal="4dp">
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:textColor="@color/text_tertiary"
+        android:fontFamily="monospace"/>
+
+    <TextView
+        android:id="@+id/tvLevel"
+        android:layout_width="36dp"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:fontFamily="monospace"
+        android:textStyle="bold"
+        android:layout_marginStart="4dp"/>
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="11sp"
+        android:fontFamily="monospace"
+        android:textColor="@color/terminal_text"
+        android:layout_marginStart="6dp"/>
+</LinearLayout>
