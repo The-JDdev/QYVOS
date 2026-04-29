@@ -1,0 +1,22 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.chaquo.python'
+}
+android {
+    namespace 'com.shs.qyvos'
+    compileSdk 33
+    defaultConfig {
+        applicationId "com.shs.qyvos"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+        python { buildPython "python3" }
+        ndk { abiFilters "armeabi-v7a" }
+    }
+}
+dependencies {
+    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+}
