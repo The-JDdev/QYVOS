@@ -1,8 +1,11 @@
 package com.qyvos.app.ui.browser
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import android.webkit.*
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.qyvos.app.databinding.ActivityBrowserViewerBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,6 +39,13 @@ class BrowserViewerActivity : AppCompatActivity() {
         setupAddressBar(isReadOnly)
 
         binding.webView.loadUrl(initialUrl)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.webView.canGoBack()) binding.webView.goBack()
+                else finish()
+            }
+        })
     }
 
     private fun setupWebView(isReadOnly: Boolean) {
@@ -52,7 +62,7 @@ class BrowserViewerActivity : AppCompatActivity() {
             }
 
             webViewClient = object : WebViewClient() {
-                override fun onPageStarted(view: WebView, url: String, favicon: android.graphics.Bitmap?) {
+                override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
                     super.onPageStarted(view, url, favicon)
                     binding.progressBar.visibility = android.view.View.VISIBLE
                     binding.etUrl.setText(url)
@@ -62,7 +72,6 @@ class BrowserViewerActivity : AppCompatActivity() {
                     binding.progressBar.visibility = android.view.View.GONE
                     binding.etUrl.setText(url)
                     supportActionBar?.title = view.title ?: url
-                    // Capture page screenshot for God's Eye panel
                     view.evaluateJavascript("document.title") { title ->
                         onPageLoadedCallback?.invoke(url, title?.trim('"') ?: "")
                     }
@@ -78,7 +87,6 @@ class BrowserViewerActivity : AppCompatActivity() {
                 }
             }
 
-            // Disable user interaction when in readonly/agent mode
             if (isReadOnly) {
                 setOnTouchListener { _, _ -> true }
             }
@@ -120,15 +128,15 @@ class BrowserViewerActivity : AppCompatActivity() {
     }
 
     /** Take a screenshot of the current WebView */
-    fun captureScreenshot(): android.graphics.Bitmap? {
-        binding.webView.isDrawingCacheEnabled = true
-        return binding.webView.drawingCache
+    fun captureScreenshot(): Bitmap? {
+        val w = binding.webView.width
+        val h = binding.webView.height
+        if (w == 0 || h == 0) return null
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        binding.webView.draw(canvas)
+        return bitmap
     }
 
     override fun onSupportNavigateUp(): Boolean { finish(); return true }
-
-    override fun onBackPressed() {
-        if (binding.webView.canGoBack()) binding.webView.goBack()
-        else super.onBackPressed()
-    }
 }

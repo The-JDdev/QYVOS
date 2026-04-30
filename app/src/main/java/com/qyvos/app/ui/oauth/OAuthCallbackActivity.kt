@@ -107,7 +107,7 @@ class OAuthCallbackActivity : AppCompatActivity() {
             .build()
 
         val response = withContext(Dispatchers.IO) { httpClient.newCall(request).execute() }
-        val body = response.body()?.string() ?: throw Exception("Empty response")
+        val body = response.body?.string() ?: throw Exception("Empty response")
         val json = JSONObject(body)
 
         val accessToken = json.optString("access_token")

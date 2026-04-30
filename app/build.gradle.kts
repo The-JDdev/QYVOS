@@ -77,7 +77,15 @@ android {
 chaquopy {
     defaultConfig {
         version = "3.11"
-        buildPython("/nix/store/flbj8bq2vznkcwss7sm0ky8rd0k6kar7-python-wrapped-0.1.0/bin/python3")
+        // Auto-detect python3 on the build machine for portability
+        val python3 = sequenceOf("python3", "/usr/bin/python3", "/usr/local/bin/python3")
+            .firstOrNull { java.io.File(it).exists() }
+            ?: try {
+                Runtime.getRuntime().exec(arrayOf("which", "python3"))
+                    .inputStream.bufferedReader().readLine()?.trim()
+            } catch (e: Exception) { null }
+            ?: "python3"
+        buildPython(python3)
         pip {
             // Heavy native AI deps (openai>=1.40 -> jiter, pydantic>=2 -> pydantic-core, tiktoken)
             // are now hosted on the Hugging Face Space backend. The Android app calls

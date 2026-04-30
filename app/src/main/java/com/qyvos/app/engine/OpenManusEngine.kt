@@ -148,7 +148,7 @@ class OpenManusEngine @Inject constructor(
             val logs = logCallbackModule.callAttr("drain_logs")
             val logList = logs.asList()
             for (logEntry in logList) {
-                val logMap = logEntry.asMap()
+                val logMap = logEntry.asMap().entries.associate { it.key.toString() to it.value }
                 val level = when (logMap["level"]?.toString()) {
                     "WARNING"     -> LogLevel.WARNING
                     "ERROR"       -> LogLevel.ERROR
