@@ -115,4 +115,5 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.serialization.json)
     implementation(libs.datastore.preferences)
+    implementation(libs.circleimageview)
 }
