@@ -7,6 +7,7 @@ import com.qyvos.app.data.AppDatabase
 import com.qyvos.app.data.MessageDao
 import com.qyvos.app.data.SessionDao
 import com.qyvos.app.engine.OpenManusEngine
+import com.qyvos.app.network.ChatRepository
 import com.qyvos.app.security.TokenVault
 import dagger.Module
 import dagger.Provides
@@ -35,8 +36,20 @@ object AppModule {
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(120, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
+        .retryOnConnectionFailure(true)
         .build()
 
+    @Provides @Singleton
+    fun provideChatRepository(
+        httpClient: OkHttpClient,
+        appConfig: AppConfig
+    ): ChatRepository = ChatRepository(httpClient, appConfig)
+
+    /**
+     * On-device Python agent (Chaquopy). Kept registered so existing
+     * developer-mode tooling continues to compile, but no longer used by
+     * ChatViewModel — chat now flows through ChatRepository over HTTP.
+     */
     @Provides @Singleton
     fun provideOpenManusEngine(
         @ApplicationContext context: Context,

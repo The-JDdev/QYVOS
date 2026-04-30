@@ -1,15 +1,27 @@
 package com.qyvos.app.ui.chat
 
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.qyvos.app.data.AppConfig
 import com.qyvos.app.data.MessageDao
 import com.qyvos.app.data.SessionDao
-import com.qyvos.app.data.models.*
+import com.qyvos.app.data.models.LogLevel
+import com.qyvos.app.data.models.Message
+import com.qyvos.app.data.models.MessageRole
+import com.qyvos.app.data.models.MessageType
+import com.qyvos.app.data.models.Session
 import com.qyvos.app.engine.AgentOutput
-import com.qyvos.app.engine.OpenManusEngine
+import com.qyvos.app.network.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
@@ -21,9 +33,19 @@ data class ChatUiState(
     val error: String? = null
 )
 
+/**
+ * Chat orchestration. Reads user-controlled engine config from
+ * [AppConfig] on every send, calls [ChatRepository] over plain HTTP, and
+ * persists both sides of the conversation in Room.
+ *
+ * The on-device Python agent (OpenManusEngine) is intentionally NOT used
+ * here anymore — heavy AI logic now lives on the configurable backend
+ * (QYVOS Hugging Face Space, OpenAI, DeepSeek, etc.) so the APK stays
+ * Chaquopy-compatible.
+ */
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val engine: OpenManusEngine,
+    private val chatRepository: ChatRepository,
     private val messageDao: MessageDao,
     private val sessionDao: SessionDao,
     private val appConfig: AppConfig
@@ -38,7 +60,6 @@ class ChatViewModel @Inject constructor(
     private val _browserUrl = MutableStateFlow<String?>(null)
     val browserUrl: StateFlow<String?> = _browserUrl.asStateFlow()
 
-    // Live streaming assistant message
     private val _streamingMessage = MutableStateFlow<String?>(null)
     val streamingMessage: StateFlow<String?> = _streamingMessage.asStateFlow()
 
@@ -46,12 +67,6 @@ class ChatViewModel @Inject constructor(
     private var currentJob: Job? = null
 
     init {
-        // Listen to engine execution events
-        viewModelScope.launch {
-            engine.executionFlow.collect { output ->
-                handleAgentOutput(output)
-            }
-        }
         createNewSession()
     }
 
@@ -66,113 +81,115 @@ class ChatViewModel @Inject constructor(
     fun sendMessage(userInput: String) {
         if (userInput.isBlank() || _uiState.value.isLoading) return
 
-        viewModelScope.launch {
+        currentJob = viewModelScope.launch {
             val sessionId = _uiState.value.currentSessionId
 
-            // Save user message
+            // 1) Persist + render the user's bubble immediately.
             val userMsg = Message(
                 sessionId = sessionId,
-                role = MessageRole.USER,
-                content = userInput.trim()
+                role      = MessageRole.USER,
+                content   = userInput.trim()
             )
             messageDao.insert(userMsg)
             _uiState.update { state ->
                 state.copy(
-                    messages = state.messages + userMsg,
-                    isLoading = true,
+                    messages     = state.messages + userMsg,
+                    isLoading    = true,
                     inputEnabled = false,
-                    error = null
+                    error        = null
                 )
             }
 
-            // Start streaming assistant placeholder
+            // 2) Streaming placeholder (currently non-streaming, but the
+            //    UI already wired for live updates).
             streamingMessageId = UUID.randomUUID().toString()
             _streamingMessage.value = ""
 
-            // Get config snapshot
-            val config = appConfig.getSnapshot()
-            if (config.apiKey.isBlank()) {
-                val errMsg = Message(
-                    sessionId = sessionId,
-                    role = MessageRole.ASSISTANT,
-                    type = MessageType.ERROR,
-                    content = "⚠️ No API key configured. Go to Settings to add your API key."
-                )
-                messageDao.insert(errMsg)
-                _uiState.update { it.copy(messages = it.messages + errMsg, isLoading = false, inputEnabled = true) }
-                _streamingMessage.value = null
-                return@launch
-            }
+            val cfg = appConfig.getSnapshot()
 
-            // Run the OpenManus agent via Python bridge
-            engine.runAgent(
-                sessionId   = sessionId,
-                prompt      = userInput,
-                baseUrl     = config.baseUrl,
-                apiKey      = config.apiKey,
-                modelName   = config.modelName,
-                maxTokens   = config.maxTokens.toIntOrNull() ?: 8192,
-                temperature = config.temperature.toDoubleOrNull() ?: 0.7,
-                maxSteps    = config.maxSteps.toIntOrNull() ?: 20
+            // God's Eye live log
+            emitLog(
+                sessionId,
+                "POST ${cfg.fullUrl()}  model=${cfg.modelName}",
+                LogLevel.STEP
             )
+
+            // 3) History sent to the backend = everything BEFORE the new
+            //    user message we just inserted.
+            val history = _uiState.value.messages.dropLast(1)
+
+            val result = chatRepository.sendMessage(history = history, userPrompt = userInput)
+
+            when (result) {
+                is ChatRepository.Result.Success -> {
+                    emitLog(
+                        sessionId,
+                        "Response received in ${result.latencyMs} ms (${result.content.length} chars)",
+                        LogLevel.TOOL_RESULT
+                    )
+
+                    val assistantMsg = Message(
+                        id        = streamingMessageId ?: UUID.randomUUID().toString(),
+                        sessionId = sessionId,
+                        role      = MessageRole.ASSISTANT,
+                        type      = MessageType.TEXT,
+                        content   = result.content
+                    )
+                    messageDao.insert(assistantMsg)
+
+                    _streamingMessage.value = null
+                    streamingMessageId = null
+
+                    _uiState.update { state ->
+                        state.copy(
+                            messages     = state.messages + assistantMsg,
+                            isLoading    = false,
+                            inputEnabled = true
+                        )
+                    }
+                    updateSessionTitle()
+                }
+                is ChatRepository.Result.Failure -> {
+                    val hint = if (cfg.apiKey.isBlank()) {
+                        "  •  Tip: open Settings and add an API Key for ${cfg.baseUrl}."
+                    } else ""
+
+                    emitLog(sessionId, "Request failed: ${result.errorMessage}", LogLevel.ERROR)
+
+                    val errMsg = Message(
+                        sessionId = sessionId,
+                        role      = MessageRole.ASSISTANT,
+                        type      = MessageType.ERROR,
+                        content   = "⚠️ ${result.errorMessage}$hint"
+                    )
+                    messageDao.insert(errMsg)
+                    _streamingMessage.value = null
+                    streamingMessageId = null
+                    _uiState.update {
+                        it.copy(
+                            messages     = it.messages + errMsg,
+                            isLoading    = false,
+                            inputEnabled = true,
+                            error        = result.errorMessage
+                        )
+                    }
+                }
+            }
         }
     }
 
-    private suspend fun handleAgentOutput(output: AgentOutput) {
-        if (output.sessionId != _uiState.value.currentSessionId) return
-
-        // Forward to execution log stream
-        _executionLogs.emit(output)
-
-        // Update browser URL if provided
-        output.browserUrl?.let { url ->
-            _browserUrl.value = url
-        }
-
-        when {
-            output.isThinking -> {
-                // Update streaming message with thinking content
-                _streamingMessage.value = (_streamingMessage.value ?: "") + output.content
-            }
-            output.isFinal -> {
-                // Finalize the assistant message
-                val finalContent = output.content
-                val assistantMsg = Message(
-                    id        = streamingMessageId ?: UUID.randomUUID().toString(),
-                    sessionId = _uiState.value.currentSessionId,
-                    role      = MessageRole.ASSISTANT,
-                    type      = MessageType.TEXT,
-                    content   = finalContent
-                )
-                messageDao.insert(assistantMsg)
-
-                _streamingMessage.value = null
-                streamingMessageId = null
-
-                _uiState.update { state ->
-                    state.copy(
-                        messages     = state.messages + assistantMsg,
-                        isLoading    = false,
-                        inputEnabled = true
-                    )
-                }
-
-                // Update session title from first user message
-                updateSessionTitle()
-            }
-            output.logLevel == com.qyvos.app.data.models.LogLevel.TOOL_RESULT -> {
-                // Show tool results as special messages
-                val toolMsg = Message(
-                    sessionId = _uiState.value.currentSessionId,
-                    role      = MessageRole.TOOL,
-                    type      = MessageType.TOOL_RESULT,
-                    content   = output.content,
-                    toolName  = output.toolName
-                )
-                messageDao.insert(toolMsg)
-                _uiState.update { it.copy(messages = it.messages + toolMsg) }
-            }
-        }
+    private suspend fun emitLog(
+        sessionId: String,
+        message: String,
+        level: LogLevel
+    ) {
+        _executionLogs.emit(
+            AgentOutput(
+                sessionId = sessionId,
+                content   = message,
+                logLevel  = level
+            )
+        )
     }
 
     private suspend fun updateSessionTitle() {
@@ -184,7 +201,8 @@ class ChatViewModel @Inject constructor(
     }
 
     fun cancelCurrentTask() {
-        engine.cancelCurrentTask()
+        currentJob?.cancel()
+        currentJob = null
         _uiState.update { it.copy(isLoading = false, inputEnabled = true) }
         _streamingMessage.value = null
     }

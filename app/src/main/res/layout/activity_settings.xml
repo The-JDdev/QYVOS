@@ -30,7 +30,7 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AI Model Configuration"
+                android:text="AI Engine Configuration"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -40,7 +40,7 @@
                 android:id="@+id/tvSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Configure your OpenAI-compatible AI provider"
+                android:text="Connect QYVOS to any OpenAI-compatible AI provider"
                 android:textSize="13sp"
                 android:textColor="@color/text_secondary"
                 android:layout_marginBottom="24dp"/>
@@ -59,6 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp">
+                <com.google.android.material.chip.Chip android:id="@+id/chipQyvosCloud" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="QYVOS Cloud" app:chipBackgroundColor="@color/bg_surface"/>
                 <com.google.android.material.chip.Chip android:id="@+id/chipDeepseek" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DeepSeek R1" app:chipBackgroundColor="@color/bg_surface"/>
                 <com.google.android.material.chip.Chip android:id="@+id/chipOpenai" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OpenAI GPT-4o" app:chipBackgroundColor="@color/bg_surface"/>
                 <com.google.android.material.chip.Chip android:id="@+id/chipClaude" style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Claude 3.5" app:chipBackgroundColor="@color/bg_surface"/>
@@ -83,7 +84,27 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_primary"
                     android:inputType="textUri"
-                    android:hint="https://api.deepseek.com/v1"/>
+                    android:hint="https://the-jddev-qyvos-api.hf.space"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Endpoint Path -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilEndpoint"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Endpoint Path"
+                app:helperText="e.g. api/chat (QYVOS) or chat/completions (OpenAI)"
+                app:boxStrokeColor="@color/accent_primary"
+                app:hintTextColor="@color/text_secondary">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etEndpoint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_primary"
+                    android:inputType="textUri"
+                    android:hint="api/chat"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- API Key -->
@@ -120,7 +141,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_primary"
-                    android:hint="deepseek-r1-0528"/>
+                    android:hint="qyvos-v1"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Advanced Row -->
