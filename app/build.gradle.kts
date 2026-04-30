@@ -23,25 +23,6 @@ android {
         ndk {
             abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
         }
-
-        python {
-            pip {
-                install("openai>=1.0.0")
-                install("pydantic>=2.0.0")
-                install("httpx>=0.27.0")
-                install("tiktoken>=0.7.0")
-                install("tomli>=2.0.0")
-                install("tenacity>=9.0.0")
-                install("loguru>=0.7.0")
-                install("colorama>=0.4.6")
-                install("requests>=2.32.0")
-                install("Pillow>=10.0.0")
-                install("beautifulsoup4>=4.12.0")
-                install("lxml>=5.0.0")
-                install("html2text>=2024.0.0")
-                install("aiofiles>=23.2.0")
-            }
-        }
     }
 
     signingConfigs {
@@ -91,17 +72,32 @@ android {
             isUniversalApk = true
         }
     }
-
-    sourceSets {
-        getByName("main") {
-            python.setSrcDirs(listOf("src/main/python"))
-        }
-    }
 }
 
 chaquopy {
     defaultConfig {
         version = "3.11"
+        pip {
+            install("openai>=1.0.0")
+            install("pydantic>=2.0.0")
+            install("httpx>=0.27.0")
+            install("tiktoken>=0.7.0")
+            install("tomli>=2.0.0")
+            install("tenacity>=9.0.0")
+            install("loguru>=0.7.0")
+            install("colorama>=0.4.6")
+            install("requests>=2.32.0")
+            install("Pillow>=10.0.0")
+            install("beautifulsoup4>=4.12.0")
+            install("lxml>=5.0.0")
+            install("html2text>=2024.0.0")
+            install("aiofiles>=23.2.0")
+        }
+    }
+    sourceSets {
+        getByName("main") {
+            setSrcDirs("src/main/python")
+        }
     }
 }
 
