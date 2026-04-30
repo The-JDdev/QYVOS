@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    id("com.chaquo.python")
+    alias(libs.plugins.chaquopy)
 }
 
 android {
