@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.qyvos.app"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.qyvos.app"
@@ -77,6 +77,7 @@ android {
 chaquopy {
     defaultConfig {
         version = "3.11"
+        buildPython("/nix/store/flbj8bq2vznkcwss7sm0ky8rd0k6kar7-python-wrapped-0.1.0/bin/python3")
         pip {
             install("openai>=1.0.0")
             install("pydantic>=2.0.0")
