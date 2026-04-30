@@ -20,6 +20,7 @@ markwon = "4.6.2"
 lottie = "6.5.0"
 serialization = "1.7.1"
 datastore = "1.1.1"
+circleimageview = "3.1.0"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +51,7 @@ markwon-tasklist = { group = "io.noties.markwon", name = "ext-tasklist", version
 lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
 serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+circleimageview = { group = "de.hdodenhof", name = "circleimageview", version.ref = "circleimageview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
