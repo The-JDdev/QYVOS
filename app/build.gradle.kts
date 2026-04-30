@@ -44,10 +44,20 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(project.findProperty("KEYSTORE_PATH")?.toString() ?: "/tmp/qyvos-release.keystore")
+            storePassword = project.findProperty("KEYSTORE_PASS")?.toString() ?: "qyvos2024"
+            keyAlias = project.findProperty("KEY_ALIAS")?.toString() ?: "qyvos-release"
+            keyPassword = project.findProperty("KEY_PASS")?.toString() ?: "qyvos2024"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
