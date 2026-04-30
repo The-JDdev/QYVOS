@@ -79,10 +79,12 @@ chaquopy {
         version = "3.11"
         buildPython("/nix/store/flbj8bq2vznkcwss7sm0ky8rd0k6kar7-python-wrapped-0.1.0/bin/python3")
         pip {
-            install("openai>=1.0.0")
-            install("pydantic>=2.0.0")
+            // Heavy native AI deps (openai>=1.40 -> jiter, pydantic>=2 -> pydantic-core, tiktoken)
+            // are now hosted on the Hugging Face Space backend. The Android app calls
+            // that backend over HTTP. Keep on-device Python lean and chaquopy-compatible.
+            install("openai==0.28.1")
+            install("pydantic<2")
             install("httpx>=0.27.0")
-            install("tiktoken>=0.7.0")
             install("tomli>=2.0.0")
             install("tenacity>=9.0.0")
             install("loguru>=0.7.0")

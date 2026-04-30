@@ -74,7 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:hintText="Base URL"
+                android:hint="Base URL"
                 app:boxStrokeColor="@color/accent_primary"
                 app:hintTextColor="@color/text_secondary">
                 <com.google.android.material.textfield.TextInputEditText
@@ -93,7 +93,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:hintText="API Key"
+                android:hint="API Key"
                 app:endIconMode="password_toggle"
                 app:boxStrokeColor="@color/accent_primary"
                 app:hintTextColor="@color/text_secondary">
@@ -112,7 +112,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:hintText="Model Name"
+                android:hint="Model Name"
                 app:boxStrokeColor="@color/accent_primary"
                 app:hintTextColor="@color/text_secondary">
                 <com.google.android.material.textfield.TextInputEditText
@@ -132,7 +132,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="6dp"
                     android:layout_marginBottom="12dp"
-                    app:hintText="Max Tokens"
+                    android:hint="Max Tokens"
                     app:boxStrokeColor="@color/accent_primary"
                     app:hintTextColor="@color/text_secondary">
                     <com.google.android.material.textfield.TextInputEditText
@@ -150,7 +150,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:layout_marginBottom="12dp"
-                    app:hintText="Temperature"
+                    android:hint="Temperature"
                     app:boxStrokeColor="@color/accent_primary"
                     app:hintTextColor="@color/text_secondary">
                     <com.google.android.material.textfield.TextInputEditText
@@ -168,7 +168,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:hintText="Max Agent Steps (1-50)"
+                android:hint="Max Agent Steps (1-50)"
                 app:boxStrokeColor="@color/accent_primary"
                 app:hintTextColor="@color/text_secondary">
                 <com.google.android.material.textfield.TextInputEditText
